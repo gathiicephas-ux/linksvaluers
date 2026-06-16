@@ -208,4 +208,54 @@
     render();
     restart();
   });
+
+  /* ---------- Blog card slider (multi-card, step-by-one) ---------- */
+  document.querySelectorAll('[data-card-slider]').forEach(function (root) {
+    var track = root.querySelector('.blog-slider__track');
+    var cards = Array.prototype.slice.call(root.querySelectorAll('.blog-card'));
+    var prevBtn = root.querySelector('.blog-slider__arrow--prev');
+    var nextBtn = root.querySelector('.blog-slider__arrow--next');
+    if (!track || !cards.length) return;
+
+    var index = 0, autoplay, AUTOPLAY_MS = 6000;
+
+    function step() {
+      var gap = parseFloat(getComputedStyle(track).gap) || 24;
+      return cards[0].getBoundingClientRect().width + gap;
+    }
+    function maxIndex() {
+      var viewport = root.querySelector('.blog-slider__viewport');
+      var visible = Math.max(1, Math.round(viewport.clientWidth / step()));
+      return Math.max(0, cards.length - visible);
+    }
+    function render() {
+      track.style.transform = 'translateX(-' + (index * step()) + 'px)';
+    }
+    function goTo(i) { index = Math.max(0, Math.min(i, maxIndex())); render(); }
+    function next() { index >= maxIndex() ? goTo(0) : goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+    function restart() {
+      clearInterval(autoplay);
+      autoplay = setInterval(next, AUTOPLAY_MS);
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function () { next(); restart(); });
+    if (prevBtn) prevBtn.addEventListener('click', function () { prev(); restart(); });
+    root.addEventListener('mouseenter', function () { clearInterval(autoplay); });
+    root.addEventListener('mouseleave', restart);
+    window.addEventListener('resize', render);
+
+    var touchStartX = null;
+    root.addEventListener('touchstart', function (e) { touchStartX = e.touches[0].clientX; clearInterval(autoplay); }, { passive: true });
+    root.addEventListener('touchend', function (e) {
+      if (touchStartX === null) return;
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
+      touchStartX = null;
+      restart();
+    }, { passive: true });
+
+    render();
+    restart();
+  });
 })();
