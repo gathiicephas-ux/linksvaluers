@@ -142,4 +142,56 @@
       window.open('https://wa.me/254708412668?text=' + encodeURIComponent(msg), '_blank');
     });
   });
+
+  /* ---------- Image slider / carousel ---------- */
+  document.querySelectorAll('[data-slider]').forEach(function (root) {
+    var track = root.querySelector('.tslider__track');
+    var slides = Array.prototype.slice.call(root.querySelectorAll('.tslider__slide'));
+    var dotsWrap = root.querySelector('.tslider__dots');
+    var prevBtn = root.querySelector('.tslider__arrow--prev');
+    var nextBtn = root.querySelector('.tslider__arrow--next');
+    if (!track || !slides.length) return;
+
+    var index = 0, autoplay, AUTOPLAY_MS = 5500;
+
+    slides.forEach(function (_, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'tslider__dot';
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function () { goTo(i); restart(); });
+      dotsWrap.appendChild(dot);
+    });
+    var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('.tslider__dot'));
+
+    function render() {
+      track.style.transform = 'translateX(-' + (index * 100) + '%)';
+      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === index); });
+    }
+    function goTo(i) { index = (i + slides.length) % slides.length; render(); }
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+    function restart() {
+      clearInterval(autoplay);
+      autoplay = setInterval(next, AUTOPLAY_MS);
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function () { next(); restart(); });
+    if (prevBtn) prevBtn.addEventListener('click', function () { prev(); restart(); });
+    root.addEventListener('mouseenter', function () { clearInterval(autoplay); });
+    root.addEventListener('mouseleave', restart);
+
+    var touchStartX = null;
+    root.addEventListener('touchstart', function (e) { touchStartX = e.touches[0].clientX; clearInterval(autoplay); }, { passive: true });
+    root.addEventListener('touchend', function (e) {
+      if (touchStartX === null) return;
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
+      touchStartX = null;
+      restart();
+    }, { passive: true });
+
+    render();
+    restart();
+  });
 })();
