@@ -34,7 +34,10 @@
 
 <section class="section">
   <div class="container" style="max-width:820px">
-    <form class="form-card reveal" data-demo novalidate>
+    <form class="form-card reveal" data-form action="https://formsubmit.co/info@linksvaluers.com" method="POST" novalidate>
+      <input type="hidden" name="_subject" value="New Valuation Booking Request — Links Valuers">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
       <div class="form-row">
         <div class="field"><label for="b-name">Full Name <span class="req">*</span></label><input id="b-name" name="name" type="text" required></div>
         <div class="field"><label for="b-phone">Phone Number <span class="req">*</span></label><input id="b-phone" name="phone" type="tel" placeholder="WhatsApp preferred for updates" required></div>
@@ -76,7 +79,7 @@
         <button type="submit" class="btn btn--primary">Confirm Booking Request</button>
         <span class="wa-alt">Or <a href="#" data-wa-send>book via WhatsApp</a></span>
       </div>
-      <p class="form-note">This is a demo form. Connect to your form service (Formspree, WPForms, or SMTP) before going live.</p>
+      <p class="form-note">Your request is sent securely to our bookings team at info@linksvaluers.com.</p>
     </form>
     <div class="form-success">
       <h4>Thank You!</h4>

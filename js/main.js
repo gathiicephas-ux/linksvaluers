@@ -118,17 +118,31 @@
     }
   }
 
-  /* ---------- Forms (demo handling) ---------- */
-  document.querySelectorAll('form[data-demo]').forEach(function (form) {
+  /* ---------- Forms (AJAX email submission via FormSubmit) ---------- */
+  document.querySelectorAll('form[data-form]').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!form.checkValidity()) { form.reportValidity(); return; }
       var success = form.parentNode.querySelector('.form-success');
-      form.style.display = 'none';
-      if (success) {
-        success.classList.add('show');
-        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      var submitBtn = form.querySelector('button[type="submit"]');
+      var originalLabel = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Request failed');
+        form.style.display = 'none';
+        if (success) {
+          success.classList.add('show');
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }).catch(function () {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }
+        alert('Sorry, something went wrong sending your request. Please try again, or contact us directly on WhatsApp or by phone.');
+      });
     });
   });
 
